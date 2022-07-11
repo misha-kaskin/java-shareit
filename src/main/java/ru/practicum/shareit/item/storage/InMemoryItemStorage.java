@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class InMemoryItemStorage implements ItemStorage {
             }
             return changedItem;
         } else {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
     }
 
@@ -65,7 +66,8 @@ public class InMemoryItemStorage implements ItemStorage {
     public List<ItemDto> searchItems(String text) {
         return items.values()
                 .stream()
-                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()))
+                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase())
+                        || item.getDescription().toLowerCase().contains(text.toLowerCase()))
                 .collect(Collectors.toList());
     }
 }

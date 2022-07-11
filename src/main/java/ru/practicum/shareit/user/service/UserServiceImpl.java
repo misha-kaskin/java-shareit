@@ -2,6 +2,8 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.DuplicateEmailException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.storage.UserStorage;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -27,16 +29,16 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUserById(UserDto user, Long id) {
         if (user.getEmail() != null) {
             if (userStorage.containsEmail(user.getEmail())) {
-                throw new RuntimeException();
+                throw new DuplicateEmailException();
             }
         }
         if (user.getName() != null) {
             if (user.getName().isEmpty()) {
-                throw new RuntimeException();
+                throw new ValidationException();
             }
         }
         if (user.getId() != null) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         return userStorage.updateUserById(user, id);
     }
@@ -47,16 +49,16 @@ public class UserServiceImpl implements UserService {
 
     public UserDto createUser(UserDto user) {
         if (user.getEmail() == null || user.getName() == null) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         if (user.getId() != null) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         if (user.getName().isEmpty()) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         if (userStorage.containsEmail(user.getEmail())) {
-            throw new RuntimeException();
+            throw new DuplicateEmailException();
         }
         return userStorage.createUser(user);
     }

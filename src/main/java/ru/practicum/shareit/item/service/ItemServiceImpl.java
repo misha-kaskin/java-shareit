@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.storage.UserStorage;
@@ -22,16 +24,16 @@ public class ItemServiceImpl implements ItemService {
 
     public ItemDto createItem(ItemDto item, Long userId) {
         if (!userStorage.isContainsUser(userId)) {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
         if (item.getName() == null || item.getName().isEmpty()) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         if (item.getDescription() == null || item.getDescription().isEmpty()) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         if (item.getAvailable() == null) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         return itemStorage.createItem(item, userId);
     }
@@ -42,20 +44,20 @@ public class ItemServiceImpl implements ItemService {
 
     public ItemDto updateItemById(ItemDto item, Long id, Long userId) {
         if (!userStorage.isContainsUser(userId)) {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
         if (item.getName() != null && item.getName().isEmpty()) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         if (item.getDescription() != null && item.getDescription().isEmpty()) {
-            throw new RuntimeException();
+            throw new ValidationException();
         }
         return itemStorage.updateItemById(item, id, userId);
     }
 
     public List<ItemDto> getItems(Long userId) {
         if (!userStorage.isContainsUser(userId)) {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
         return itemStorage.getItems(userId);
     }

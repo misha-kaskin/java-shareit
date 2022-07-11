@@ -2,6 +2,8 @@ package ru.practicum.shareit.user.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(id)) {
             return users.get(id);
         } else {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
     }
 
@@ -57,7 +59,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(id)) {
             users.remove(id);
         } else {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
     }
 
@@ -72,7 +74,7 @@ public class InMemoryUserStorage implements UserStorage {
             }
             return changedUser;
         } else {
-            throw new RuntimeException();
+            throw new NotFoundException();
         }
     }
 }

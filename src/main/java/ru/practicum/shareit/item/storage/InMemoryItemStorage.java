@@ -38,7 +38,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (items.containsKey(id)) {
             ItemDto changedItem = items.get(id);
             if (!userId.equals(changedItem.getOwner())) {
-                throw new RuntimeException();
+                throw new NotFoundException();
             }
             if (item.getAvailable() != null) {
                 changedItem.setAvailable(item.getAvailable());
@@ -66,8 +66,8 @@ public class InMemoryItemStorage implements ItemStorage {
     public List<ItemDto> searchItems(String text) {
         return items.values()
                 .stream()
-                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase())
-                        || item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase())
+                        || item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable())
                 .collect(Collectors.toList());
     }
 }

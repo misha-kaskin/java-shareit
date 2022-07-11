@@ -19,6 +19,7 @@ public class ItemServiceImpl implements ItemService {
         this.itemStorage = itemStorage;
         this.userStorage = userStorage;
     }
+
     public ItemDto createItem(ItemDto item, Long userId) {
         if (!userStorage.isContainsUser(userId)) {
             throw new RuntimeException();

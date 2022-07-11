@@ -12,6 +12,7 @@ public interface UserStorage {
     boolean isContainsUser(Long id);
 
     UserDto createUser(UserDto user);
+
     List<UserDto> getUsers();
 
     UserDto getUserById(Long id);

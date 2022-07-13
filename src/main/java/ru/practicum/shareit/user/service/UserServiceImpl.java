@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
@@ -45,13 +47,13 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDto createUser(UserDto user) {
-        if (StringUtils.hasText(user.getEmail())) {
+        if (!StringUtils.hasText(user.getEmail())) {
             throw new ValidationException();
         }
         if (user.getId() != null) {
             throw new ValidationException();
         }
-        if (StringUtils.hasText(user.getName())) {
+        if (!StringUtils.hasText(user.getName())) {
             throw new ValidationException();
         }
         if (userStorage.containsEmail(user.getEmail())) {

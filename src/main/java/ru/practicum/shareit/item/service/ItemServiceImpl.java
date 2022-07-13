@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.storage.ItemStorage;
@@ -26,24 +27,27 @@ public class ItemServiceImpl implements ItemService {
         if (!userStorage.isContainsUser(userId)) {
             throw new NotFoundException();
         }
-        if (item.getName() == null || item.getName().isEmpty()) {
+        if(!StringUtils.hasText(item.getName())) {
             throw new ValidationException();
         }
-        if (item.getDescription() == null || item.getDescription().isEmpty()) {
+        if(!StringUtils.hasText(item.getDescription())) {
             throw new ValidationException();
         }
         if (item.getAvailable() == null) {
             throw new ValidationException();
         }
-        return itemStorage.createItem(item, userId);
+        return itemStorage.create(item, userId);
     }
 
     public ItemDto getItemById(Long id) {
-        return itemStorage.getItemById(id);
+        return itemStorage.getById(id);
     }
 
     public ItemDto updateItemById(ItemDto item, Long id, Long userId) {
         if (!userStorage.isContainsUser(userId)) {
+            throw new NotFoundException();
+        }
+        if (!userId.equals(itemStorage.getById(id).getOwner())) {
             throw new NotFoundException();
         }
         if (item.getName() != null && item.getName().isEmpty()) {
@@ -52,20 +56,20 @@ public class ItemServiceImpl implements ItemService {
         if (item.getDescription() != null && item.getDescription().isEmpty()) {
             throw new ValidationException();
         }
-        return itemStorage.updateItemById(item, id, userId);
+        return itemStorage.update(item, id, userId);
     }
 
     public List<ItemDto> getItems(Long userId) {
         if (!userStorage.isContainsUser(userId)) {
             throw new NotFoundException();
         }
-        return itemStorage.getItems(userId);
+        return itemStorage.listAll(userId);
     }
 
     public List<ItemDto> searchItems(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemStorage.searchItems(text);
+        return itemStorage.search(text);
     }
 }

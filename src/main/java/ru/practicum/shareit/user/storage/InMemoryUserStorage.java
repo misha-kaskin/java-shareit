@@ -35,18 +35,18 @@ public class InMemoryUserStorage implements UserStorage {
         return users.containsKey(id);
     }
 
-    public UserDto createUser(UserDto user) {
+    public UserDto create(UserDto user) {
         user.setId(id);
         users.put(id, user);
         id++;
         return user;
     }
 
-    public List<UserDto> getUsers() {
+    public List<UserDto> listAll() {
         return new ArrayList<>(users.values());
     }
 
-    public UserDto getUserById(Long id) {
+    public UserDto getById(Long id) {
         if (users.containsKey(id)) {
             return users.get(id);
         } else {
@@ -54,7 +54,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    public void deleteUserById(Long id) {
+    public void delete(Long id) {
         if (users.containsKey(id)) {
             users.remove(id);
         } else {
@@ -62,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    public UserDto updateUserById(UserDto user, Long id) {
+    public UserDto update(UserDto user, Long id) {
         if (users.containsKey(id)) {
             UserDto changedUser = users.get(id);
             if (user.getEmail() != null) {

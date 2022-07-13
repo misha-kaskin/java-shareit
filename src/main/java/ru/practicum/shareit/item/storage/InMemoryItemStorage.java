@@ -21,7 +21,7 @@ public class InMemoryItemStorage implements ItemStorage {
         id = 1L;
     }
 
-    public ItemDto createItem(ItemDto item, Long userId) {
+    public ItemDto create(ItemDto item, Long userId) {
         item.setId(id);
         item.setOwner(userId);
         items.put(id, item);
@@ -30,16 +30,13 @@ public class InMemoryItemStorage implements ItemStorage {
         return item;
     }
 
-    public ItemDto getItemById(Long id) {
+    public ItemDto getById(Long id) {
         return items.get(id);
     }
 
-    public ItemDto updateItemById(ItemDto item, Long id, Long userId) {
+    public ItemDto update(ItemDto item, Long id, Long userId) {
         if (items.containsKey(id)) {
             ItemDto changedItem = items.get(id);
-            if (!userId.equals(changedItem.getOwner())) {
-                throw new NotFoundException();
-            }
             if (item.getAvailable() != null) {
                 changedItem.setAvailable(item.getAvailable());
             }
@@ -55,7 +52,7 @@ public class InMemoryItemStorage implements ItemStorage {
         }
     }
 
-    public List<ItemDto> getItems(Long userId) {
+    public List<ItemDto> listAll(Long userId) {
         return items.values()
                 .stream()
                 .filter(item -> item.getOwner().equals(userId))
@@ -63,11 +60,12 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
 
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> search(String text) {
         return items.values()
                 .stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase())
-                        || item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable())
+                        || item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                        && item.getAvailable())
                 .collect(Collectors.toList());
     }
 }

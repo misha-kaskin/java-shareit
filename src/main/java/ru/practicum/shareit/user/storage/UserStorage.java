@@ -11,13 +11,13 @@ public interface UserStorage {
 
     boolean isContainsUser(Long id);
 
-    UserDto createUser(UserDto user);
+    UserDto create(UserDto user);
 
-    List<UserDto> getUsers();
+    List<UserDto> listAll();
 
-    UserDto getUserById(Long id);
+    UserDto getById(Long id);
 
-    void deleteUserById(Long id);
+    void delete(Long id);
 
-    UserDto updateUserById(UserDto user, Long id);
+    UserDto update(UserDto user, Long id);
 }

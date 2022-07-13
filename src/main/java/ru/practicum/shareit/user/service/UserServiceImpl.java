@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.storage.UserStorage;
@@ -19,47 +20,43 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<UserDto> getUsers() {
-        return userStorage.getUsers();
+        return userStorage.listAll();
     }
 
     public UserDto getUserById(long id) {
-        return userStorage.getUserById(id);
+        return userStorage.getById(id);
     }
 
     public UserDto updateUserById(UserDto user, Long id) {
-        if (user.getEmail() != null) {
-            if (userStorage.containsEmail(user.getEmail())) {
-                throw new DuplicateEmailException();
-            }
+        if (user.getEmail() != null && userStorage.containsEmail(user.getEmail())) {
+            throw new DuplicateEmailException();
         }
-        if (user.getName() != null) {
-            if (user.getName().isEmpty()) {
-                throw new ValidationException();
-            }
+        if (user.getName() != null && user.getName().isEmpty()) {
+            throw new ValidationException();
         }
         if (user.getId() != null) {
             throw new ValidationException();
         }
-        return userStorage.updateUserById(user, id);
+        return userStorage.update(user, id);
     }
 
     public void deleteUserById(Long id) {
-        userStorage.deleteUserById(id);
+        userStorage.delete(id);
     }
 
     public UserDto createUser(UserDto user) {
-        if (user.getEmail() == null || user.getName() == null) {
+        if (StringUtils.hasText(user.getEmail())) {
             throw new ValidationException();
         }
         if (user.getId() != null) {
             throw new ValidationException();
         }
-        if (user.getName().isEmpty()) {
+        if (StringUtils.hasText(user.getName())) {
             throw new ValidationException();
         }
         if (userStorage.containsEmail(user.getEmail())) {
             throw new DuplicateEmailException();
         }
-        return userStorage.createUser(user);
+        return userStorage.create(user);
     }
 }

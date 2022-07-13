@@ -7,13 +7,13 @@ import java.util.List;
 
 @Repository
 public interface ItemStorage {
-    ItemDto createItem(ItemDto item, Long userId);
+    ItemDto create(ItemDto item, Long userId);
 
-    ItemDto getItemById(Long id);
+    ItemDto getById(Long id);
 
-    ItemDto updateItemById(ItemDto item, Long id, Long userId);
+    ItemDto update(ItemDto item, Long id, Long userId);
 
-    List<ItemDto> getItems(Long userId);
+    List<ItemDto> listAll(Long userId);
 
-    List<ItemDto> searchItems(String text);
+    List<ItemDto> search(String text);
 }

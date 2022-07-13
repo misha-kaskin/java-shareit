@@ -27,10 +27,10 @@ public class ItemServiceImpl implements ItemService {
         if (!userStorage.isContainsUser(userId)) {
             throw new NotFoundException();
         }
-        if(!StringUtils.hasText(item.getName())) {
+        if (!StringUtils.hasText(item.getName())) {
             throw new ValidationException();
         }
-        if(!StringUtils.hasText(item.getDescription())) {
+        if (!StringUtils.hasText(item.getDescription())) {
             throw new ValidationException();
         }
         if (item.getAvailable() == null) {

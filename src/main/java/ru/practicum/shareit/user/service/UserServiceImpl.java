@@ -5,45 +5,60 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.DuplicateEmailException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public List<UserDto> getUsers() {
-        return userStorage.listAll();
+        return userRepository.findAll();
     }
 
-    public UserDto getUserById(long id) {
-        return userStorage.getById(id);
+    public UserDto getUserById(Long id) {
+        Optional<UserDto> user = userRepository.getUserDtoById(id);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new NotFoundException();
+        }
     }
 
     public UserDto updateUserById(UserDto user, Long id) {
-        if (user.getEmail() != null && userStorage.containsEmail(user.getEmail())) {
-            throw new DuplicateEmailException();
-        }
         if (user.getName() != null && user.getName().isEmpty()) {
             throw new ValidationException();
         }
         if (user.getId() != null) {
             throw new ValidationException();
         }
-        return userStorage.update(user, id);
+        UserDto lastUser = getUserById(id);
+        if (user.getName() != null) {
+            lastUser.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            lastUser.setEmail(user.getEmail());
+        }
+        try {
+            return userRepository.save(lastUser);
+        } catch (Exception e) {
+            throw new DuplicateEmailException();
+        }
     }
 
     public void deleteUserById(Long id) {
-        userStorage.delete(id);
+        userRepository.deleteById(id);
     }
 
     public UserDto createUser(UserDto user) {
@@ -56,9 +71,11 @@ public class UserServiceImpl implements UserService {
         if (!StringUtils.hasText(user.getName())) {
             throw new ValidationException();
         }
-        if (userStorage.containsEmail(user.getEmail())) {
+        try {
+            return userRepository.save(user);
+        } catch (Exception e) {
             throw new DuplicateEmailException();
         }
-        return userStorage.create(user);
+
     }
 }

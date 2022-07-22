@@ -1,20 +1,35 @@
 package ru.practicum.shareit.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * // TODO .
  */
 @Setter
 @Getter
+@Entity
+@Table(name = "bookings")
 public class BookingDto {
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalDate start;
-    private LocalDate end;
-    private Long item;
-    private Long booker;
+    @Column(name = "start_date")
+    private LocalDateTime start;
+    @Column(name = "end_date")
+    private LocalDateTime end;
+    @Column(name = "item_id")
+    private Long itemId;
+    @Column(name = "booker_id")
+    private Long bookerId;
+    @Column(name = "status")
     private String status;
+    @JsonIgnore
+    @Transient
+    private String state;
 }

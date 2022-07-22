@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public interface BookingService {
     BookingDto create(BookingDto bookingDto, Long userId);
-    
+
     Booking getBookingById(Long bookingId, Long userId);
 
     List<Booking> getBookings(String state, Long userId);

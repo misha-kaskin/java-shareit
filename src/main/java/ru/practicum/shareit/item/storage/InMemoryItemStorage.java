@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -14,7 +12,6 @@ public class InMemoryItemStorage implements ItemStorage {
     private final Map<Long, ItemDto> items;
     private Long id;
 
-    @Autowired
     public InMemoryItemStorage() {
         items = new HashMap<>();
         id = 1L;

@@ -1,7 +1,5 @@
 package ru.practicum.shareit.user.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -14,7 +12,6 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, UserDto> users;
     private Long id;
 
-    @Autowired
     public InMemoryUserStorage() {
         users = new HashMap<>();
         id = 1L;

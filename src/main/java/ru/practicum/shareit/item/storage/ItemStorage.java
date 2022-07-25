@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.storage;
 
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;

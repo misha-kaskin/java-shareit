@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.storage;
 
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;

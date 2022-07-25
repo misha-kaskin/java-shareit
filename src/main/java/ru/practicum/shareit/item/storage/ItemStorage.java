@@ -5,7 +5,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-@Repository
 public interface ItemStorage {
     ItemDto create(ItemDto item, Long userId);
 

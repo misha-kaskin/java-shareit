@@ -87,15 +87,15 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException();
         }
 
-        return mapper(bookingDto);
+        return convert(bookingDto);
     }
 
     public List<Booking> getBookings(String state, Long userId) {
-        return bookingRepository.findBookingDtoByBookerId(userId)
+        return bookingRepository.findBookingDtoByBookerIdOrderByStartDesc(userId)
                 .stream()
                 .peek(this::stateMaker)
                 .filter((bookingDto -> state.equals("ALL") || bookingDto.getState().equals(state)))
-                .map(this::mapper)
+                .map(this::convert)
                 .collect(Collectors.toList());
     }
 
@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
         } else {
             return bookingDtoList
                     .stream()
-                    .map(this::mapper)
+                    .map(this::convert)
                     .collect(Collectors.toList());
         }
     }
@@ -145,17 +145,17 @@ public class BookingServiceImpl implements BookingService {
 
         if ("TRUE".equalsIgnoreCase(approved)) {
             bookingDto.setStatus("APPROVED");
-            return mapper(bookingRepository.save(bookingDto));
+            return convert(bookingRepository.save(bookingDto));
         }
         if ("FALSE".equalsIgnoreCase(approved)) {
             bookingDto.setStatus("REJECTED");
-            return mapper(bookingRepository.save(bookingDto));
+            return convert(bookingRepository.save(bookingDto));
         } else {
             throw new ValidationException();
         }
     }
 
-    private Booking mapper(BookingDto bookingDto) {
+    private Booking convert(BookingDto bookingDto) {
         Booking booking = new Booking();
         booking.setId(bookingDto.getId());
         booking.setStatus(bookingDto.getStatus());

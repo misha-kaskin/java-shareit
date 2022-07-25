@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.comment.model.CommentDto;
 
 import javax.persistence.*;
 import java.util.List;
@@ -38,5 +38,5 @@ public class ItemDto {
     @Transient
     private BookingDto nextBooking;
     @Transient
-    private List<Comment> comments;
+    private List<CommentDto> comments;
 }

@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Repository
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, UserDto> users;
     private Long id;

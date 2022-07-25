@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class Comment {
+public class CommentDto {
     private Long id;
     private String text;
     private String authorName;

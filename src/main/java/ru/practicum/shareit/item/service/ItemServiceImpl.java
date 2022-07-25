@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.comment.model.Comment;
-import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.model.CommentDto;
+import ru.practicum.shareit.comment.dto.Comment;
 import ru.practicum.shareit.comment.storage.CommentRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -58,18 +58,15 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException();
         }
         Optional<ItemDto> item = itemRepository.findItemDtoById(id);
-        if (item.isPresent()) {
-            ItemDto itemDto = item.get();
-
+        item.ifPresentOrElse((itemDto) -> {
             if (itemDto.getOwner().equals(userId)) {
                 addBooking(itemDto);
             }
             addComments(itemDto);
-
-            return itemDto;
-        } else {
+        }, () -> {
             throw new NotFoundException();
-        }
+        });
+        return item.get();
     }
 
     private void addBooking(ItemDto itemDto) {
@@ -85,9 +82,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void addComments(ItemDto itemDto) {
-        List<Comment> comments = commentRepository.getCommentDtoByItemId(itemDto.getId())
+        List<CommentDto> comments = commentRepository.getCommentDtoByItemId(itemDto.getId())
                 .stream()
-                .map(this::mapper)
+                .map(this::convert)
                 .collect(Collectors.toList());
         itemDto.setComments(comments);
     }
@@ -122,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
         }
-        return itemRepository.findAllByOwner(userId).stream()
+        return itemRepository.findItemDtoByOwner(userId).stream()
                 .peek(this::addBooking)
                 .peek(this::addComments)
                 .collect(Collectors.toList());
@@ -136,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Comment addComment(Long userId, Long itemId, CommentDto commentDto) {
+    public CommentDto addComment(Long userId, Long itemId, Comment commentDto) {
         if (!StringUtils.hasText(commentDto.getText())) {
             throw new ValidationException();
         }
@@ -147,7 +144,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException();
         }
 
-        List<BookingDto> bookingList = bookingRepository.findBookingDtoByBookerIdAndItemId(userId, itemId);
+        List<BookingDto> bookingList = bookingRepository.findBookingDtoByBookerIdAndItemIdOrderByEndAsc(userId, itemId);
         if (bookingList.isEmpty()) {
             throw new ValidationException();
         }
@@ -158,16 +155,16 @@ public class ItemServiceImpl implements ItemService {
         commentDto.setItemId(itemId);
         commentDto.setAuthorId(userId);
         commentDto.setCreated(LocalDateTime.now());
-        return mapper(commentRepository.save(commentDto));
+        return convert(commentRepository.save(commentDto));
     }
 
-    private Comment mapper(CommentDto commentDto) {
-        Comment comment = new Comment();
+    private CommentDto convert(Comment commentDto) {
+        CommentDto comment = new CommentDto();
 
         comment.setText(commentDto.getText());
         comment.setId(commentDto.getId());
         comment.setCreated(commentDto.getCreated());
-        comment.setAuthorName(userRepository.getUserDtoById(commentDto.getAuthorId()).get().getName());
+        comment.setAuthorName(userRepository.findUserDtoById(commentDto.getAuthorId()).get().getName());
 
         return comment;
     }

@@ -5,7 +5,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
-@Repository
 public interface UserStorage {
     boolean containsEmail(String email);
 

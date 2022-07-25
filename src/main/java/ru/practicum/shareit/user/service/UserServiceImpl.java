@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.DuplicateEmailException;
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDto getUserById(Long id) {
-        Optional<UserDto> user = userRepository.getUserDtoById(id);
+        Optional<UserDto> user = userRepository.findUserDtoById(id);
         if (user.isPresent()) {
             return user.get();
         } else {
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
         }
         try {
             return userRepository.save(lastUser);
-        } catch (Exception e) {
+        } catch (DbActionExecutionException e) {
             throw new DuplicateEmailException();
         }
     }

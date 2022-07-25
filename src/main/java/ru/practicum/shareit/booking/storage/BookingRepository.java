@@ -9,24 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<BookingDto, Long> {
-    @Query ("select b from BookingDto b " +
-            "where b.id = ?1")
     Optional<BookingDto> findBookingDtoById(Long id);
 
-    @Query ("select b from BookingDto b " +
-            "where b.bookerId = ?1 " +
-            "order by b.start desc")
-    List<BookingDto> findBookingDtoByBookerId(Long bookerId);
+    List<BookingDto> findBookingDtoByBookerIdOrderByStartDesc(Long bookerId);
 
-    @Query ("select b from BookingDto b " +
+    @Query("select b from BookingDto b " +
             "where b.itemId in (select i.id from ItemDto i where i.owner = ?1)" +
             "order by b.start desc")
     List<BookingDto> findBookingDtoByOwnerId(Long ownerId);
 
-    @Query("select b from BookingDto b " +
-            "where b.bookerId = ?1 and b.itemId = ?2 " +
-            "order by b.end asc ")
-    List<BookingDto> findBookingDtoByBookerIdAndItemId(Long bookerId, Long itemId);
+    List<BookingDto> findBookingDtoByBookerIdAndItemIdOrderByEndAsc(Long bookerId, Long itemId);
 
     @Query("select b from BookingDto  b " +
             "where b.itemId = ?1 and b.start > ?2 " +

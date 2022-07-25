@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.storage;
 
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryUserStorage implements UserStorage {
-    private final Map<Long, UserDto> users;
+    private final Map<Long, User> users;
     private Long id;
 
     public InMemoryUserStorage() {
@@ -18,7 +18,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public boolean containsEmail(String email) {
-        for (UserDto user : users.values()) {
+        for (User user : users.values()) {
             if (email.equals(user.getEmail())) {
                 return true;
             }
@@ -31,18 +31,18 @@ public class InMemoryUserStorage implements UserStorage {
         return users.containsKey(id);
     }
 
-    public UserDto create(UserDto user) {
+    public User create(User user) {
         user.setId(id);
         users.put(id, user);
         id++;
         return user;
     }
 
-    public List<UserDto> listAll() {
+    public List<User> listAll() {
         return new ArrayList<>(users.values());
     }
 
-    public UserDto getById(Long id) {
+    public User getById(Long id) {
         if (users.containsKey(id)) {
             return users.get(id);
         } else {
@@ -58,9 +58,9 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    public UserDto update(UserDto user, Long id) {
+    public User update(User user, Long id) {
         if (users.containsKey(id)) {
-            UserDto changedUser = users.get(id);
+            User changedUser = users.get(id);
             if (user.getEmail() != null) {
                 changedUser.setEmail(user.getEmail());
             }

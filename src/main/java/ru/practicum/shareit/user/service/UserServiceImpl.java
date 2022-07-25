@@ -9,7 +9,7 @@ import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.storage.UserRepository;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +24,12 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    public List<UserDto> getUsers() {
+    public List<User> getUsers() {
         return userRepository.findAll();
     }
 
-    public UserDto getUserById(Long id) {
-        Optional<UserDto> user = userRepository.findUserDtoById(id);
+    public User getUserById(Long id) {
+        Optional<User> user = userRepository.findUserDtoById(id);
         if (user.isPresent()) {
             return user.get();
         } else {
@@ -37,14 +37,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public UserDto updateUserById(UserDto user, Long id) {
+    public User updateUserById(User user, Long id) {
         if (user.getName() != null && user.getName().isEmpty()) {
             throw new ValidationException();
         }
         if (user.getId() != null) {
             throw new ValidationException();
         }
-        UserDto lastUser = getUserById(id);
+        User lastUser = getUserById(id);
         if (user.getName() != null) {
             lastUser.setName(user.getName());
         }
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    public UserDto createUser(UserDto user) {
+    public User createUser(User user) {
         if (!StringUtils.hasText(user.getEmail())) {
             throw new ValidationException();
         }

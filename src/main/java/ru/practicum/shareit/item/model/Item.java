@@ -1,20 +1,42 @@
 package ru.practicum.shareit.item.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.shareit.requests.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.comment.dto.CommentDto;
+
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * // TODO .
  */
-@Setter
 @Getter
+@Setter
+@Entity
+@Table(name = "items")
 public class Item {
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "description")
     private String description;
+    @Column(name = "available")
     private Boolean available;
-    private User owner;
-    private ItemRequest request;
+    @JsonIgnore
+    @Column(name = "owner_id")
+    private Long owner;
+    @JsonIgnore
+    @Column(name = "request_id")
+    private Long request;
+    @Transient
+    private Booking lastBooking;
+    @Transient
+    private Booking nextBooking;
+    @Transient
+    private List<CommentDto> comments;
 }

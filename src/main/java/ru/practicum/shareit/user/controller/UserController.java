@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,17 +25,17 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getUsers() {
+    public List<User> getUsers() {
         return userService.getUsers();
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable Long id) {
+    public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUserById(@Valid @RequestBody UserDto user, @PathVariable Long id) {
+    public User updateUserById(@Valid @RequestBody User user, @PathVariable Long id) {
         return userService.updateUserById(user, id);
     }
 
@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto user) {
+    public User createUser(@Valid @RequestBody User user) {
         return userService.createUser(user);
     }
 

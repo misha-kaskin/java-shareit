@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.storage;
 
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InMemoryItemStorage implements ItemStorage {
-    private final Map<Long, ItemDto> items;
+    private final Map<Long, Item> items;
     private Long id;
 
     public InMemoryItemStorage() {
@@ -17,7 +17,7 @@ public class InMemoryItemStorage implements ItemStorage {
         id = 1L;
     }
 
-    public ItemDto create(ItemDto item, Long userId) {
+    public Item create(Item item, Long userId) {
         item.setId(id);
         item.setOwner(userId);
         items.put(id, item);
@@ -26,13 +26,13 @@ public class InMemoryItemStorage implements ItemStorage {
         return item;
     }
 
-    public ItemDto getById(Long id) {
+    public Item getById(Long id) {
         return items.get(id);
     }
 
-    public ItemDto update(ItemDto item, Long id, Long userId) {
+    public Item update(Item item, Long id, Long userId) {
         if (items.containsKey(id)) {
-            ItemDto changedItem = items.get(id);
+            Item changedItem = items.get(id);
             if (item.getAvailable() != null) {
                 changedItem.setAvailable(item.getAvailable());
             }
@@ -48,7 +48,7 @@ public class InMemoryItemStorage implements ItemStorage {
         }
     }
 
-    public List<ItemDto> listAll(Long userId) {
+    public List<Item> listAll(Long userId) {
         return items.values()
                 .stream()
                 .filter(item -> item.getOwner().equals(userId))
@@ -56,7 +56,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
 
-    public List<ItemDto> search(String text) {
+    public List<Item> search(String text) {
         return items.values()
                 .stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase())

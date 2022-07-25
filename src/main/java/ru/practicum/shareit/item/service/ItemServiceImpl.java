@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.storage.BookingRepository;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.comment.model.CommentDto;
-import ru.practicum.shareit.comment.dto.Comment;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.storage.CommentRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.storage.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
         this.bookingRepository = bookingRepository;
     }
 
-    public ItemDto createItem(ItemDto item, Long userId) {
+    public Item createItem(Item item, Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
         }
@@ -53,11 +53,11 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(item);
     }
 
-    public ItemDto getItemById(Long id, Long userId) {
+    public Item getItemById(Long id, Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
         }
-        Optional<ItemDto> item = itemRepository.findItemDtoById(id);
+        Optional<Item> item = itemRepository.findItemDtoById(id);
         item.ifPresentOrElse((itemDto) -> {
             if (itemDto.getOwner().equals(userId)) {
                 addBooking(itemDto);
@@ -69,19 +69,19 @@ public class ItemServiceImpl implements ItemService {
         return item.get();
     }
 
-    private void addBooking(ItemDto itemDto) {
-        List<BookingDto> nextBookings = bookingRepository.getNextBooking(itemDto.getId(), LocalDateTime.now());
+    private void addBooking(Item itemDto) {
+        List<Booking> nextBookings = bookingRepository.getNextBooking(itemDto.getId(), LocalDateTime.now());
         if (!nextBookings.isEmpty()) {
             itemDto.setNextBooking(nextBookings.get(0));
         }
 
-        List<BookingDto> lastBookings = bookingRepository.getLastBooking(itemDto.getId(), LocalDateTime.now());
+        List<Booking> lastBookings = bookingRepository.getLastBooking(itemDto.getId(), LocalDateTime.now());
         if (!lastBookings.isEmpty()) {
             itemDto.setLastBooking(lastBookings.get(0));
         }
     }
 
-    private void addComments(ItemDto itemDto) {
+    private void addComments(Item itemDto) {
         List<CommentDto> comments = commentRepository.getCommentDtoByItemId(itemDto.getId())
                 .stream()
                 .map(this::convert)
@@ -89,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
         itemDto.setComments(comments);
     }
 
-    public ItemDto updateItemById(ItemDto item, Long id, Long userId) {
+    public Item updateItemById(Item item, Long id, Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
         }
@@ -102,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.getDescription() != null && item.getDescription().isEmpty()) {
             throw new ValidationException();
         }
-        ItemDto lastItem = getItemById(id, userId);
+        Item lastItem = getItemById(id, userId);
         if (item.getName() != null) {
             lastItem.setName(item.getName());
         }
@@ -115,7 +115,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(lastItem);
     }
 
-    public List<ItemDto> getItems(Long userId) {
+    public List<Item> getItems(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
         }
@@ -125,7 +125,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
-    public List<ItemDto> searchItems(String text) {
+    public List<Item> searchItems(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
@@ -144,7 +144,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException();
         }
 
-        List<BookingDto> bookingList = bookingRepository.findBookingDtoByBookerIdAndItemIdOrderByEndAsc(userId, itemId);
+        List<Booking> bookingList = bookingRepository.findBookingDtoByBookerIdAndItemIdOrderByEndAsc(userId, itemId);
         if (bookingList.isEmpty()) {
             throw new ValidationException();
         }

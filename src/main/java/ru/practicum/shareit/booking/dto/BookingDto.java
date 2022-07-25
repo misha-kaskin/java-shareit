@@ -1,10 +1,10 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
@@ -12,24 +12,11 @@ import java.time.LocalDateTime;
  */
 @Setter
 @Getter
-@Entity
-@Table(name = "bookings")
 public class BookingDto {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name = "start_date")
     private LocalDateTime start;
-    @Column(name = "end_date")
     private LocalDateTime end;
-    @Column(name = "item_id")
-    private Long itemId;
-    @Column(name = "booker_id")
-    private Long bookerId;
-    @Column(name = "status")
+    private ItemDto item;
+    private UserDto booker;
     private String status;
-    @JsonIgnore
-    @Transient
-    private String state;
 }

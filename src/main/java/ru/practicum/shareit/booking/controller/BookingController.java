@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
@@ -25,29 +25,29 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingDto create(@RequestBody BookingDto bookingDto, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Booking create(@RequestBody Booking bookingDto, @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.create(bookingDto, userId);
     }
 
     @GetMapping("/{bookingId}")
-    public Booking getBookingById(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public BookingDto getBookingById(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.getBookingById(bookingId, userId);
     }
 
     @GetMapping
-    public List<Booking> getBookings(@RequestParam(defaultValue = "ALL") String state, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<BookingDto> getBookings(@RequestParam(defaultValue = "ALL") String state, @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.getBookings(state, userId);
     }
 
     @GetMapping("/owner")
-    public List<Booking> getOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
+    public List<BookingDto> getOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
                                              @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.getOwnerBookings(state, userId);
     }
 
     @PatchMapping("/{bookingId}")
-    public Booking approve(@RequestParam String approved,
-                           @PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public BookingDto approve(@RequestParam String approved,
+                              @PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.approve(approved, bookingId, userId);
     }
 

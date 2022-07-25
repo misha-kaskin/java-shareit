@@ -2,15 +2,15 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.storage.ItemRepository;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
@@ -31,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
         this.userRepository = userRepository;
     }
 
-    public BookingDto create(BookingDto bookingDto, Long userId) {
+    public Booking create(Booking bookingDto, Long userId) {
         if (bookingDto.getItemId() == null || bookingDto.getStart() == null || bookingDto.getEnd() == null) {
             throw new ValidationException();
         }
@@ -56,7 +56,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException();
         }
 
-        ItemDto item = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
+        Item item = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
         if (!item.getAvailable()) {
             throw new ValidationException();
         }
@@ -69,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(bookingDto);
     }
 
-    public Booking getBookingById(Long bookingId, Long userId) {
+    public BookingDto getBookingById(Long bookingId, Long userId) {
         if (!bookingRepository.existsById(bookingId)) {
             throw new NotFoundException();
         }
@@ -77,12 +77,12 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException();
         }
 
-        BookingDto bookingDto = bookingRepository.findBookingDtoById(bookingId).get();
+        Booking bookingDto = bookingRepository.findBookingDtoById(bookingId).get();
         if (!itemRepository.existsById(bookingDto.getItemId())) {
             throw new NotFoundException();
         }
 
-        ItemDto itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
+        Item itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
         if (!Objects.equals(itemDto.getOwner(), userId) && !Objects.equals(bookingDto.getBookerId(), userId)) {
             throw new NotFoundException();
         }
@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
         return convert(bookingDto);
     }
 
-    public List<Booking> getBookings(String state, Long userId) {
+    public List<BookingDto> getBookings(String state, Long userId) {
         return bookingRepository.findBookingDtoByBookerIdOrderByStartDesc(userId)
                 .stream()
                 .peek(this::stateMaker)
@@ -99,8 +99,8 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-    public List<Booking> getOwnerBookings(String state, Long userId) {
-        List<BookingDto> bookingDtoList = bookingRepository.findBookingDtoByOwnerId(userId)
+    public List<BookingDto> getOwnerBookings(String state, Long userId) {
+        List<Booking> bookingDtoList = bookingRepository.findBookingDtoByOwnerId(userId)
                 .stream()
                 .peek(this::stateMaker)
                 .filter((bookingDto -> state.equals("ALL") || bookingDto.getState().equals(state)))
@@ -116,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public Booking approve(String approved, Long bookingId, Long userId) {
+    public BookingDto approve(String approved, Long bookingId, Long userId) {
         if (bookingId == null || userId == null) {
             throw new ValidationException();
         }
@@ -127,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException();
         }
 
-        BookingDto bookingDto = bookingRepository.findBookingDtoById(bookingId).get();
+        Booking bookingDto = bookingRepository.findBookingDtoById(bookingId).get();
         if (!itemRepository.existsById(bookingDto.getItemId())) {
             throw new NotFoundException();
         }
@@ -138,7 +138,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException();
         }
 
-        ItemDto itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
+        Item itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
         if (!Objects.equals(itemDto.getOwner(), userId)) {
             throw new ValidationException();
         }
@@ -155,19 +155,19 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private Booking convert(BookingDto bookingDto) {
-        Booking booking = new Booking();
+    private BookingDto convert(Booking bookingDto) {
+        BookingDto booking = new BookingDto();
         booking.setId(bookingDto.getId());
         booking.setStatus(bookingDto.getStatus());
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
 
-        User booker = new User();
+        UserDto booker = new UserDto();
         booker.setId(bookingDto.getBookerId());
         booking.setBooker(booker);
 
-        Item item = new Item();
-        ItemDto itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
+        ItemDto item = new ItemDto();
+        Item itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
         item.setId(bookingDto.getItemId());
         item.setName(itemDto.getName());
         booking.setItem(item);
@@ -175,7 +175,7 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
-    private void stateMaker(BookingDto bookingDto) {
+    private void stateMaker(Booking bookingDto) {
         if ("WAITING".equals(bookingDto.getStatus())) {
             bookingDto.setState("WAITING");
         } else if ("REJECTED".equals(bookingDto.getStatus())) {

@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 @Setter
 @Getter
 public class ItemDto {
-    private long id;
+    private Long id;
     private String name;
     private String description;
     private Boolean available;

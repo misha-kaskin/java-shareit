@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.DuplicateEmailException;
@@ -39,21 +38,24 @@ public class UserServiceImpl implements UserService {
 
     public User updateUserById(User user, Long id) {
         if (user.getName() != null && user.getName().isEmpty()) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (user.getId() != null) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
+
         User lastUser = getUserById(id);
+
         if (user.getName() != null) {
             lastUser.setName(user.getName());
         }
         if (user.getEmail() != null) {
             lastUser.setEmail(user.getEmail());
         }
+
         try {
             return userRepository.save(lastUser);
-        } catch (DbActionExecutionException e) {
+        } catch (Exception e) {
             throw new DuplicateEmailException();
         }
     }
@@ -64,19 +66,18 @@ public class UserServiceImpl implements UserService {
 
     public User createUser(User user) {
         if (!StringUtils.hasText(user.getEmail())) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (user.getId() != null) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (!StringUtils.hasText(user.getName())) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         try {
             return userRepository.save(user);
         } catch (Exception e) {
             throw new DuplicateEmailException();
         }
-
     }
 }

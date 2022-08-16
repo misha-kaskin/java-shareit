@@ -7,7 +7,7 @@ public class ItemMapper {
         Item itemDto = new Item();
 
         itemDto.setOwner(item.getOwner().getId());
-        itemDto.setRequest(item.getRequest().getId());
+        itemDto.setRequestId(item.getRequest().getId());
         itemDto.setId(item.getId());
         itemDto.setAvailable(item.getAvailable());
         itemDto.setName(item.getName());

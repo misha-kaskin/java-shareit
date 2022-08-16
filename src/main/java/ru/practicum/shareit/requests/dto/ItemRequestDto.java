@@ -1,5 +1,6 @@
 package ru.practicum.shareit.requests.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
     private long id;
     private String description;
-    private Long requestor;
+    @JsonIgnore
+    private Long requester;
     private LocalDateTime created;
 }

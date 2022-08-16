@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.storage.BookingRepository;
@@ -17,6 +18,7 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,13 +43,13 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException();
         }
         if (!StringUtils.hasText(item.getName())) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (!StringUtils.hasText(item.getDescription())) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (item.getAvailable() == null) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         item.setOwner(userId);
         return itemRepository.save(item);
@@ -97,10 +99,10 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException();
         }
         if (item.getName() != null && item.getName().isEmpty()) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (item.getDescription() != null && item.getDescription().isEmpty()) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         Item lastItem = getItemById(id, userId);
         if (item.getName() != null) {
@@ -115,27 +117,67 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(lastItem);
     }
 
-    public List<Item> getItems(Long userId) {
+    public List<Item> getItems(Long userId, Integer from, Integer size) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
         }
-        return itemRepository.findItemDtoByOwner(userId).stream()
-                .peek(this::addBooking)
-                .peek(this::addComments)
-                .collect(Collectors.toList());
+        if (!((Objects.nonNull(from) && Objects.nonNull(size))
+                || (Objects.isNull(from) && Objects.isNull(size)))) {
+            throw new ValidationException("Некорректные параметры пагинации");
+        }
+        if (Objects.nonNull(from)) {
+            if (from < 0) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+        if (Objects.nonNull(size)) {
+            if (size < 1) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+        if (Objects.isNull(size) && Objects.isNull(from)) {
+            return itemRepository.findItemDtoByOwner(userId).stream()
+                    .peek(this::addBooking)
+                    .peek(this::addComments)
+                    .collect(Collectors.toList());
+        } else {
+            return itemRepository.findItemDtoByOwner(userId, PageRequest.of(from, size))
+                    .stream()
+                    .peek(this::addBooking)
+                    .peek(this::addComments)
+                    .collect(Collectors.toList());
+        }
     }
 
-    public List<Item> searchItems(String text) {
+    public List<Item> searchItems(String text, Integer from, Integer size) {
+        if (!((Objects.nonNull(from) && Objects.nonNull(size))
+                || (Objects.isNull(from) && Objects.isNull(size)))) {
+            throw new ValidationException("Некорректные параметры пагинации");
+        }
+        if (Objects.nonNull(from)) {
+            if (from < 0) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+        if (Objects.nonNull(size)) {
+            if (size < 1) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemRepository.search(text);
+        if (Objects.isNull(size) && Objects.isNull(from)) {
+            return itemRepository.search(text);
+        } else {
+            return itemRepository.search(text, PageRequest.of(from, size)).toList();
+        }
     }
 
     @Override
     public CommentDto addComment(Long userId, Long itemId, Comment commentDto) {
         if (!StringUtils.hasText(commentDto.getText())) {
-            throw new ValidationException();
+            throw new ValidationException("Пустая строка");
         }
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
@@ -146,10 +188,10 @@ public class ItemServiceImpl implements ItemService {
 
         List<Booking> bookingList = bookingRepository.findBookingDtoByBookerIdAndItemIdOrderByEndAsc(userId, itemId);
         if (bookingList.isEmpty()) {
-            throw new ValidationException();
+            throw new ValidationException("Пустой список бронирований");
         }
         if (bookingList.get(0).getEnd().isAfter(LocalDateTime.now())) {
-            throw new ValidationException();
+            throw new ValidationException("У пользователя нету завершенных бронирований данной вещи");
         }
 
         commentDto.setItemId(itemId);

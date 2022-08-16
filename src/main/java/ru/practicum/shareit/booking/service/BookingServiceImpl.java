@@ -1,14 +1,16 @@
 package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.storage.UserRepository;
@@ -32,11 +34,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public Booking create(Booking bookingDto, Long userId) {
-        if (bookingDto.getItemId() == null || bookingDto.getStart() == null || bookingDto.getEnd() == null) {
-            throw new ValidationException();
+        if (bookingDto.getItemId() == null
+                || bookingDto.getStart() == null
+                || bookingDto.getEnd() == null) {
+            throw new ValidationException("Пустая строка");
         }
         if (userId == null) {
-            throw new ValidationException();
+            throw new ValidationException("Пустой userId");
         }
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException();
@@ -47,18 +51,18 @@ public class BookingServiceImpl implements BookingService {
 
         LocalDateTime currentTime = LocalDateTime.now();
         if (currentTime.isAfter(bookingDto.getEnd())) {
-            throw new ValidationException();
+            throw new ValidationException("Бронирование в прошлом");
         }
         if (currentTime.isAfter(bookingDto.getStart())) {
-            throw new ValidationException();
+            throw new ValidationException("Бронирование в прошлом");
         }
         if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
-            throw new ValidationException();
+            throw new ValidationException("Бронирование в прошлом");
         }
 
         Item item = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
         if (!item.getAvailable()) {
-            throw new ValidationException();
+            throw new ValidationException("Бронирование недоступно");
         }
         if (userId.equals(item.getOwner())) {
             throw new NotFoundException();
@@ -90,20 +94,95 @@ public class BookingServiceImpl implements BookingService {
         return convert(bookingDto);
     }
 
-    public List<BookingDto> getBookings(String state, Long userId) {
-        return bookingRepository.findBookingDtoByBookerIdOrderByStartDesc(userId)
+    public List<BookingDto> getBookings(String state, Long userId, Integer from, Integer size) {
+        try {
+            State.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(new StringBuilder()
+                    .append("Unknown state: ").append(state)
+                    .toString());
+        }
+
+        if (!((Objects.nonNull(from) && Objects.nonNull(size))
+                || (Objects.isNull(from) && Objects.isNull(size)))) {
+            throw new ValidationException("Некорректные параметры пагинации");
+        }
+        if (Objects.nonNull(from)) {
+            if (from < 0) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+        if (Objects.nonNull(size)) {
+            if (size < 1) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+
+        List<Booking> bookingList;
+
+        if (Objects.isNull(from) && Objects.isNull(size)) {
+            bookingList = bookingRepository.findBookingDtoByBookerIdOrderByStartDesc(userId);
+        } else {
+            bookingList = bookingRepository
+                    .findBookingDtoByBookerIdOrderByStartDesc(userId, PageRequest.of(from, size))
+                    .toList();
+        }
+
+        List<BookingDto> bookingDtoList = bookingList
                 .stream()
                 .peek(this::stateMaker)
-                .filter((bookingDto -> state.equals("ALL") || bookingDto.getState().equals(state)))
+                .filter(bookingDto -> state.equals("ALL")
+                        || bookingDto.getState().equals(state)
+                        || bookingDto.getStatus().equals(state))
                 .map(this::convert)
                 .collect(Collectors.toList());
+        if (bookingDtoList.isEmpty()) {
+            throw new NotFoundException();
+        } else {
+            return bookingDtoList;
+        }
     }
 
-    public List<BookingDto> getOwnerBookings(String state, Long userId) {
-        List<Booking> bookingDtoList = bookingRepository.findBookingDtoByOwnerId(userId)
+    public List<BookingDto> getOwnerBookings(String state, Long userId, Integer from, Integer size) {
+        try {
+            State.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(new StringBuilder()
+                    .append("Unknown state: ").append(state)
+                    .toString());
+        }
+
+        if (!((Objects.nonNull(from) && Objects.nonNull(size))
+                || (Objects.isNull(from) && Objects.isNull(size)))) {
+            throw new ValidationException("Некорректные параметры пагинации");
+        }
+        if (Objects.nonNull(from)) {
+            if (from < 0) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+        if (Objects.nonNull(size)) {
+            if (size < 1) {
+                throw new ValidationException("Некорректные параметры пагинации");
+            }
+        }
+
+        List<Booking> bookingDtoList;
+
+        if (Objects.isNull(size) && Objects.isNull(from)) {
+            bookingDtoList = bookingRepository.findBookingDtoByOwnerId(userId);
+        } else {
+            bookingDtoList = bookingRepository
+                    .findBookingDtoByOwnerId(userId, PageRequest.of(from, size))
+                    .toList();
+        }
+
+       bookingDtoList = bookingRepository.findBookingDtoByOwnerId(userId)
                 .stream()
                 .peek(this::stateMaker)
-                .filter((bookingDto -> state.equals("ALL") || bookingDto.getState().equals(state)))
+                .filter(bookingDto -> state.equals("ALL")
+                        || bookingDto.getState().equals(state)
+                        || bookingDto.getStatus().equals(state))
                 .collect(Collectors.toList());
 
         if (bookingDtoList.isEmpty()) {
@@ -118,7 +197,7 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingDto approve(String approved, Long bookingId, Long userId) {
         if (bookingId == null || userId == null) {
-            throw new ValidationException();
+            throw new ValidationException("Пустые поля");
         }
         if (!bookingRepository.existsById(bookingId)) {
             throw new NotFoundException();
@@ -135,12 +214,12 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException();
         }
         if (!"WAITING".equalsIgnoreCase(bookingDto.getStatus())) {
-            throw new ValidationException();
+            throw new ValidationException("Заказ одобрен/отклонен");
         }
 
         Item itemDto = itemRepository.findItemDtoById(bookingDto.getItemId()).get();
         if (!Objects.equals(itemDto.getOwner(), userId)) {
-            throw new ValidationException();
+            throw new ValidationException("");
         }
 
         if ("TRUE".equalsIgnoreCase(approved)) {
@@ -151,7 +230,7 @@ public class BookingServiceImpl implements BookingService {
             bookingDto.setStatus("REJECTED");
             return convert(bookingRepository.save(bookingDto));
         } else {
-            throw new ValidationException();
+            throw new ValidationException("Неправильный статус");
         }
     }
 
@@ -176,11 +255,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void stateMaker(Booking bookingDto) {
-        if ("WAITING".equals(bookingDto.getStatus())) {
-            bookingDto.setState("WAITING");
-        } else if ("REJECTED".equals(bookingDto.getStatus())) {
-            bookingDto.setState("REJECTED");
-        } else if (bookingDto.getStart().isAfter(LocalDateTime.now())) {
+        if (bookingDto.getStart().isAfter(LocalDateTime.now())) {
             bookingDto.setState("FUTURE");
         } else if (bookingDto.getEnd().isBefore(LocalDateTime.now())) {
             bookingDto.setState("PAST");

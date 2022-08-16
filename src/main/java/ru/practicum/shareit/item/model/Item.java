@@ -20,7 +20,7 @@ public class Item {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(name = "name")
     private String name;
     @Column(name = "description")
@@ -30,9 +30,8 @@ public class Item {
     @JsonIgnore
     @Column(name = "owner_id")
     private Long owner;
-    @JsonIgnore
     @Column(name = "request_id")
-    private Long request;
+    private Long requestId;
     @Transient
     private Booking lastBooking;
     @Transient

@@ -26,32 +26,42 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item createItem(@RequestBody Item item, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Item createItem(@RequestBody Item item,
+                           @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.createItem(item, userId);
     }
 
     @GetMapping("/{id}")
-    public Item getItemById(@PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Item getItemById(@PathVariable Long id,
+                            @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.getItemById(id, userId);
     }
 
     @PatchMapping("/{id}")
-    public Item updateItemById(@RequestBody Item item, @PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Item updateItemById(@RequestBody Item item,
+                               @PathVariable Long id,
+                               @RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.updateItemById(item, id, userId);
     }
 
     @GetMapping
-    public List<Item> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getItems(userId);
+    public List<Item> getItems(@RequestHeader("X-Sharer-User-Id") Long userId,
+                               @RequestParam(required = false) Integer from,
+                               @RequestParam(required = false) Integer size) {
+        return itemService.getItems(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<Item> searchItems(@RequestParam String text) {
-        return itemService.searchItems(text);
+    public List<Item> searchItems(@RequestParam String text,
+                                  @RequestParam(required = false) Integer from,
+                                  @RequestParam(required = false) Integer size) {
+        return itemService.searchItems(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody Comment commentDto) {
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @PathVariable Long itemId,
+                                 @RequestBody Comment commentDto) {
         return itemService.addComment(userId, itemId, commentDto);
     }
 

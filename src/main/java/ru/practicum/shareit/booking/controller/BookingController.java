@@ -10,6 +10,8 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * // TODO .
@@ -35,14 +37,19 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getBookings(@RequestParam(defaultValue = "ALL") String state, @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getBookings(state, userId);
+    public List<BookingDto> getBookings(@RequestParam(defaultValue = "ALL") String state,
+                                        @RequestHeader("X-Sharer-User-Id") Long userId,
+                                        @RequestParam(required = false) Integer from,
+                                        @RequestParam(required = false) Integer size) {
+        return bookingService.getBookings(state, userId, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
-                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getOwnerBookings(state, userId);
+                                             @RequestHeader("X-Sharer-User-Id") Long userId,
+                                             @RequestParam(required = false) Integer from,
+                                             @RequestParam(required = false) Integer size) {
+        return bookingService.getOwnerBookings(state, userId, from, size);
     }
 
     @PatchMapping("/{bookingId}")
@@ -54,12 +61,15 @@ public class BookingController {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handlerNotFound(final NotFoundException e) {
-
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handlerValidate(final ValidationException e) {
-
+    public Map<String, String> handlerValidate(final ValidationException e) {
+        if (Objects.isNull(e.getMessage())) {
+            return Map.of("error", "");
+        } else {
+            return Map.of("error", e.getMessage());
+        }
     }
 }

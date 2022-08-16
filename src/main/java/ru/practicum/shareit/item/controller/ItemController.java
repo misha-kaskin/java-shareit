@@ -64,16 +64,4 @@ public class ItemController {
                                  @RequestBody Comment commentDto) {
         return itemService.addComment(userId, itemId, commentDto);
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handlerNotFound(final NotFoundException e) {
-
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handlerValidate(final ValidationException e) {
-
-    }
 }

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
-@RequiredArgsConstructor(onConstructor_ =@Autowired)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceUnitTest {
     @MockBean
     private final UserRepository userRepository;

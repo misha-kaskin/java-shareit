@@ -47,16 +47,4 @@ public class ItemRequestController {
                                           @PathVariable Long id) {
         return itemRequestService.getItemRequestById(userId, id);
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handlerNotFound(final NotFoundException e) {
-
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handlerValidate(final ValidationException e) {
-
-    }
 }

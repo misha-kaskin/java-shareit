@@ -49,22 +49,4 @@ public class UserController {
     public User createUser(@Valid @RequestBody User user) {
         return userService.createUser(user);
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handlerNotFound(final NotFoundException e) {
-
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handlerValidate(final ValidationException e) {
-
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public void handlerValidate(final DuplicateEmailException e) {
-
-    }
 }

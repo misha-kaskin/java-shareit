@@ -57,19 +57,4 @@ public class BookingController {
                               @PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.approve(approved, bookingId, userId);
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handlerNotFound(final NotFoundException e) {
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handlerValidate(final ValidationException e) {
-        if (Objects.isNull(e.getMessage())) {
-            return Map.of("error", "");
-        } else {
-            return Map.of("error", e.getMessage());
-        }
-    }
 }
